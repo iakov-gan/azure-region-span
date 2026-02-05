@@ -60,5 +60,5 @@ variable "size" {
 variable "resource_group_name" {
   description = "The name of the resource group where resources will be created."
   type        = string
-  default     = "rg-netperf-region-001"
+  default     = "rg-netperf-region-010"
 }
