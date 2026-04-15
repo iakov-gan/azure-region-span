@@ -287,13 +287,37 @@ class MatrixView {
         countLabel.style.color = '#00d9ff';
         countLabel.style.fontSize = '0.8rem';
 
-        // CSV export
+        // Legend
+        const legend = document.createElement('div');
+        legend.style.cssText = 'display:flex;gap:10px;align-items:center;font-size:0.75rem;';
+        const bands = [
+            { color: '#1a5c2a', text: '#a6e3a1', label: '< 40' },
+            { color: '#5c5c1a', text: '#f9e2af', label: '40–99' },
+            { color: '#6c3a0a', text: '#fab387', label: '100–199' },
+            { color: '#6c1a1a', text: '#f38ba8', label: '200–299' },
+            { color: '#4c0a0a', text: '#e06080', label: '≥ 300' },
+        ];
+        bands.forEach(b => {
+            const item = document.createElement('span');
+            item.style.cssText = `display:inline-flex;align-items:center;gap:3px;`;
+            const swatch = document.createElement('span');
+            swatch.style.cssText = `width:12px;height:12px;border-radius:2px;background:${b.color};display:inline-block;`;
+            const lbl = document.createElement('span');
+            lbl.style.color = '#94a3b8';
+            lbl.textContent = b.label;
+            item.appendChild(swatch);
+            item.appendChild(lbl);
+            legend.appendChild(item);
+        });
+
+        // CSV export — subtle style
         const csvBtn = document.createElement('button');
-        csvBtn.className = 'matrix-btn matrix-btn-accent';
-        csvBtn.textContent = '📥 CSV';
+        csvBtn.className = 'matrix-btn';
+        csvBtn.style.cssText = 'font-size:0.75rem;opacity:0.6;padding:4px 10px;';
+        csvBtn.textContent = '↓ CSV';
         csvBtn.addEventListener('click', () => this._exportCSV());
 
-        [geoLabel, geoSelect, srcBtn, dstBtn, sortLabel, sortSelect, spacer, countLabel, csvBtn].forEach(el => bar.appendChild(el));
+        [geoLabel, geoSelect, srcBtn, dstBtn, sortLabel, sortSelect, spacer, countLabel, legend, csvBtn].forEach(el => bar.appendChild(el));
         return bar;
     }
 
