@@ -406,9 +406,10 @@ class MatrixView {
             document.body.appendChild(this._tooltipEl);
         }
         const az = info.hasAvailabilityZones ? '✅ Yes' : '❌ No';
+        const city = info.city ? `${info.city}, ` : '';
         this._tooltipEl.innerHTML = `
             <strong>${info.displayName}</strong><br>
-            📍 ${info.country}<br>
+            📍 ${city}${info.country}<br>
             🌍 ${this._geoGroupName(info.geoGroup)}<br>
             🏢 AZ Support: ${az}
         `;
