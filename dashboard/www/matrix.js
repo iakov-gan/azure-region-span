@@ -435,7 +435,7 @@ class MatrixView {
         html += `<div style="font-size:0.8rem;color:#00d9ff;margin-bottom:6px;">Current: ${latency.toFixed(2)} ms</div>`;
 
         if (history.length > 1) {
-            html += `<canvas id="matrix-sparkline-canvas" width="200" height="60"></canvas>`;
+            html += `<canvas id="matrix-sparkline-canvas" width="280" height="100"></canvas>`;
             html += `<div style="font-size:0.7rem;color:#94a3b8;margin-top:4px;">${history.length} measurements</div>`;
         } else {
             html += `<div style="font-size:0.75rem;color:#94a3b8;">No history data</div>`;
@@ -467,41 +467,72 @@ class MatrixView {
 
     _drawSparkline(canvas, history) {
         const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
+        const W = canvas.width, H = canvas.height;
         const values = history.map(h => h.latency);
-        const min = 0;
-        const max = Math.max(...values);
-        const range = max || 1;
-        const pad = 4;
+        const maxV = Math.max(...values);
+        const range = maxV || 1;
+        const pad = { t: 8, r: 10, b: 20, l: 34 };
+        const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
 
-        ctx.clearRect(0, 0, w, h);
+        ctx.clearRect(0, 0, W, H);
+
+        function x(i) { return pad.l + (i / (values.length - 1)) * cw; }
+        function y(v) { return pad.t + ch - (v / range) * ch; }
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(148,163,184,0.15)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 3; i++) {
+            const gy = pad.t + (ch / 3) * i;
+            ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(W - pad.r, gy); ctx.stroke();
+        }
+
+        // Y-axis labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '9px sans-serif';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 3; i++) {
+            const v = maxV - (maxV / 3) * i;
+            ctx.fillText(Math.round(v), pad.l - 4, pad.t + (ch / 3) * i + 3);
+        }
+
+        // X-axis date labels
+        ctx.textAlign = 'left';
+        const firstDate = history[0].timestamp ? new Date(history[0].timestamp) : null;
+        const lastDate = history[history.length - 1].timestamp ? new Date(history[history.length - 1].timestamp) : null;
+        if (firstDate) {
+            ctx.fillText(firstDate.toLocaleDateString('en', { month: 'short', day: 'numeric' }), pad.l, H - 3);
+        }
+        if (lastDate) {
+            ctx.textAlign = 'right';
+            ctx.fillText(lastDate.toLocaleDateString('en', { month: 'short', day: 'numeric' }), W - pad.r, H - 3);
+        }
 
         // Line
         ctx.beginPath();
         ctx.strokeStyle = '#00d9ff';
         ctx.lineWidth = 1.5;
+        ctx.lineJoin = 'round';
         values.forEach((v, i) => {
-            const x = pad + (i / (values.length - 1)) * (w - 2 * pad);
-            const y = h - pad - ((v - min) / range) * (h - 2 * pad);
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+            if (i === 0) ctx.moveTo(x(i), y(v));
+            else ctx.lineTo(x(i), y(v));
         });
         ctx.stroke();
 
         // Fill under
-        const lastX = pad + ((values.length - 1) / (values.length - 1)) * (w - 2 * pad);
-        ctx.lineTo(lastX, h - pad);
-        ctx.lineTo(pad, h - pad);
+        ctx.lineTo(x(values.length - 1), pad.t + ch);
+        ctx.lineTo(x(0), pad.t + ch);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(0,217,255,0.1)';
+        ctx.fillStyle = 'rgba(0,217,255,0.08)';
         ctx.fill();
 
-        // Min/max labels
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '9px sans-serif';
-        ctx.fillText(`${min.toFixed(1)}`, 2, h - 2);
-        ctx.fillText(`${max.toFixed(1)}`, 2, 10);
+        // Dots
+        ctx.fillStyle = '#00d9ff';
+        values.forEach((v, i) => {
+            ctx.beginPath();
+            ctx.arc(x(i), y(v), 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        });
     }
 
     // ── Multi-select popover ─────────────────────────────────
