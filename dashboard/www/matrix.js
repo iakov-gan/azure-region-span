@@ -60,6 +60,12 @@ class MatrixView {
         const params = new URLSearchParams(window.location.search);
         if (params.get('mgeo')) this.geoFilter = params.get('mgeo');
         if (params.get('msort')) this.sortMode = params.get('msort');
+        if (params.get('msrc')) {
+            this._sourceSelection = new Set(params.get('msrc').split(','));
+        }
+        if (params.get('mdst')) {
+            this._destSelection = new Set(params.get('mdst').split(','));
+        }
     }
 
     _syncURLParams() {
@@ -68,6 +74,18 @@ class MatrixView {
         else url.searchParams.delete('mgeo');
         if (this.sortMode !== 'name') url.searchParams.set('msort', this.sortMode);
         else url.searchParams.delete('msort');
+        // Source selection
+        if (this._sourceSelection && this._sourceSelection.size > 0 && this._sourceSelection.size < this.sourceRegions.length) {
+            url.searchParams.set('msrc', [...this._sourceSelection].join(','));
+        } else {
+            url.searchParams.delete('msrc');
+        }
+        // Dest selection
+        if (this._destSelection && this._destSelection.size > 0 && this._destSelection.size < this.destRegions.length) {
+            url.searchParams.set('mdst', [...this._destSelection].join(','));
+        } else {
+            url.searchParams.delete('mdst');
+        }
         url.searchParams.set('view', 'matrix');
         history.replaceState(null, '', url);
     }
