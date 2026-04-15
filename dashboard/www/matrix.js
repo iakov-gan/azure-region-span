@@ -172,13 +172,12 @@ class MatrixView {
         return key;
     }
 
-    _avgLatencyForRegion(regionId) {
+    _avgLatencyForRegion(regionId, peerList) {
         let sum = 0, count = 0;
-        this.aggregatedData.connections.forEach(c => {
-            if (c.source === regionId && c.latency != null) {
-                sum += c.latency;
-                count++;
-            }
+        peerList.forEach(peerId => {
+            if (regionId === peerId) return;
+            const lat = this.latencyLookup.get(`${regionId}|${peerId}`);
+            if (lat != null) { sum += lat; count++; }
         });
         return count > 0 ? sum / count : Infinity;
     }
@@ -208,12 +207,15 @@ class MatrixView {
             dests = dests.filter(d => this._destSelection.has(d));
         }
 
-        // Sort
-        const sortFn = this.sortMode === 'latency'
-            ? (a, b) => this._avgLatencyForRegion(a) - this._avgLatencyForRegion(b)
-            : (a, b) => this._regionName(a).localeCompare(this._regionName(b));
-        sources.sort(sortFn);
-        dests.sort(sortFn);
+        // Sort — use filtered peers for avg calculation
+        if (this.sortMode === 'latency') {
+            sources.sort((a, b) => this._avgLatencyForRegion(a, dests) - this._avgLatencyForRegion(b, dests));
+            dests.sort((a, b) => this._avgLatencyForRegion(a, sources) - this._avgLatencyForRegion(b, sources));
+        } else {
+            const nameCmp = (a, b) => this._regionName(a).localeCompare(this._regionName(b));
+            sources.sort(nameCmp);
+            dests.sort(nameCmp);
+        }
 
         this.filteredSources = sources;
         this.filteredDests = dests;
@@ -250,6 +252,18 @@ class MatrixView {
             this._render();
         });
 
+        // Source multi-select button
+        const srcBtn = document.createElement('button');
+        srcBtn.className = 'matrix-btn';
+        this._updateMultiSelectBtn('source', srcBtn);
+        srcBtn.addEventListener('click', () => this._showMultiSelect('source', srcBtn));
+
+        // Dest multi-select button
+        const dstBtn = document.createElement('button');
+        dstBtn.className = 'matrix-btn';
+        this._updateMultiSelectBtn('dest', dstBtn);
+        dstBtn.addEventListener('click', () => this._showMultiSelect('dest', dstBtn));
+
         // Sort
         const sortLabel = this._el('span', 'Sort:');
         sortLabel.style.color = '#94a3b8';
@@ -264,17 +278,14 @@ class MatrixView {
             this._render();
         });
 
-        // Source multi-select button
-        const srcBtn = document.createElement('button');
-        srcBtn.className = 'matrix-btn';
-        srcBtn.textContent = `Sources (${this._sourceSelection ? this._sourceSelection.size : 'all'})`;
-        srcBtn.addEventListener('click', () => this._showMultiSelect('source', srcBtn));
+        // Spacer
+        const spacer = document.createElement('div');
+        spacer.style.marginLeft = 'auto';
 
-        // Dest multi-select button
-        const dstBtn = document.createElement('button');
-        dstBtn.className = 'matrix-btn';
-        dstBtn.textContent = `Destinations (${this._destSelection ? this._destSelection.size : 'all'})`;
-        dstBtn.addEventListener('click', () => this._showMultiSelect('dest', dstBtn));
+        // Region count
+        const countLabel = this._el('span', `${this.filteredSources.length}×${this.filteredDests.length}`);
+        countLabel.style.color = '#00d9ff';
+        countLabel.style.fontSize = '0.8rem';
 
         // CSV export
         const csvBtn = document.createElement('button');
@@ -282,13 +293,7 @@ class MatrixView {
         csvBtn.textContent = '📥 CSV';
         csvBtn.addEventListener('click', () => this._exportCSV());
 
-        // Region count
-        const countLabel = this._el('span', `${this.filteredSources.length}×${this.filteredDests.length}`);
-        countLabel.style.color = '#00d9ff';
-        countLabel.style.fontSize = '0.8rem';
-        countLabel.style.marginLeft = 'auto';
-
-        [geoLabel, geoSelect, sortLabel, sortSelect, srcBtn, dstBtn, csvBtn, countLabel].forEach(el => bar.appendChild(el));
+        [geoLabel, geoSelect, srcBtn, dstBtn, sortLabel, sortSelect, spacer, countLabel, csvBtn].forEach(el => bar.appendChild(el));
         return bar;
     }
 
