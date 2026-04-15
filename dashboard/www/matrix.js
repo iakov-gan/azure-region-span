@@ -182,11 +182,11 @@ class MatrixView {
         }
 
         // Source multi-select
-        if (this._sourceSelection && this._sourceSelection.size > 0) {
+        if (this._sourceSelection && this._sourceSelection.size > 0 && this._sourceSelection.size < this.sourceRegions.length) {
             sources = sources.filter(s => this._sourceSelection.has(s));
         }
         // Dest multi-select
-        if (this._destSelection && this._destSelection.size > 0) {
+        if (this._destSelection && this._destSelection.size > 0 && this._destSelection.size < this.destRegions.length) {
             dests = dests.filter(d => this._destSelection.has(d));
         }
 
@@ -464,7 +464,14 @@ class MatrixView {
         if (existing) { existing.remove(); return; }
 
         const allRegions = type === 'source' ? this.sourceRegions : this.destRegions;
-        const currentSel = type === 'source' ? this._sourceSelection : this._destSelection;
+        // Initialize selection set if null (means "all")
+        if (type === 'source' && !this._sourceSelection) {
+            this._sourceSelection = new Set(allRegions);
+        }
+        if (type === 'dest' && !this._destSelection) {
+            this._destSelection = new Set(allRegions);
+        }
+        const sel = type === 'source' ? this._sourceSelection : this._destSelection;
 
         const popover = document.createElement('div');
         popover.className = 'matrix-multiselect-popover';
@@ -484,7 +491,7 @@ class MatrixView {
         selAllBtn.style.fontSize = '0.75rem';
         const clrBtn = document.createElement('button');
         clrBtn.className = 'matrix-btn';
-        clrBtn.textContent = 'Clear';
+        clrBtn.textContent = 'None';
         clrBtn.style.fontSize = '0.75rem';
         controls.appendChild(selAllBtn);
         controls.appendChild(clrBtn);
@@ -504,18 +511,10 @@ class MatrixView {
                 item.className = 'matrix-ms-item';
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
-                cb.checked = !currentSel || currentSel.has(rId);
+                cb.checked = sel.has(rId);
                 cb.addEventListener('change', () => {
-                    if (!currentSel) {
-                        // Initialize from all
-                        const sel = new Set(allRegions);
-                        if (!cb.checked) sel.delete(rId);
-                        if (type === 'source') this._sourceSelection = sel;
-                        else this._destSelection = sel;
-                    } else {
-                        if (cb.checked) currentSel.add(rId);
-                        else currentSel.delete(rId);
-                    }
+                    if (cb.checked) sel.add(rId);
+                    else sel.delete(rId);
                     this._updateMultiSelectBtn(type, anchorBtn);
                 });
                 item.appendChild(cb);
@@ -527,14 +526,12 @@ class MatrixView {
 
         search.addEventListener('input', () => renderList(search.value));
         selAllBtn.addEventListener('click', () => {
-            if (type === 'source') this._sourceSelection = null;
-            else this._destSelection = null;
+            allRegions.forEach(r => sel.add(r));
             this._updateMultiSelectBtn(type, anchorBtn);
             renderList(search.value);
         });
         clrBtn.addEventListener('click', () => {
-            if (type === 'source') this._sourceSelection = new Set();
-            else this._destSelection = new Set();
+            sel.clear();
             this._updateMultiSelectBtn(type, anchorBtn);
             renderList(search.value);
         });
@@ -549,6 +546,7 @@ class MatrixView {
         applyBtn.style.width = '100%';
         applyBtn.addEventListener('click', () => {
             popover.remove();
+            this._syncURLParams();
             this._render();
         });
         popover.appendChild(applyBtn);
@@ -561,12 +559,14 @@ class MatrixView {
         popover.style.zIndex = '10000';
         document.body.appendChild(popover);
 
-        // Close on outside click
+        // Close on outside click (apply + close)
         setTimeout(() => {
             const closeHandler = (e) => {
                 if (!popover.contains(e.target) && e.target !== anchorBtn) {
                     popover.remove();
                     document.removeEventListener('mousedown', closeHandler);
+                    this._syncURLParams();
+                    this._render();
                 }
             };
             document.addEventListener('mousedown', closeHandler);
@@ -575,7 +575,12 @@ class MatrixView {
 
     _updateMultiSelectBtn(type, btn) {
         const sel = type === 'source' ? this._sourceSelection : this._destSelection;
-        btn.textContent = `${type === 'source' ? 'Sources' : 'Destinations'} (${sel ? sel.size : 'all'})`;
+        const all = type === 'source' ? this.sourceRegions : this.destRegions;
+        if (!sel || sel.size === all.length) {
+            btn.textContent = `${type === 'source' ? 'Sources' : 'Destinations'} (all)`;
+        } else {
+            btn.textContent = `${type === 'source' ? 'Sources' : 'Destinations'} (${sel.size}/${all.length})`;
+        }
     }
 
     // ── CSV export ───────────────────────────────────────────
