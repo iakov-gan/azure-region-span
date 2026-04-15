@@ -422,9 +422,9 @@ class MatrixView {
         const w = canvas.width;
         const h = canvas.height;
         const values = history.map(h => h.latency);
-        const min = Math.min(...values);
+        const min = 0;
         const max = Math.max(...values);
-        const range = max - min || 1;
+        const range = max || 1;
         const pad = 4;
 
         ctx.clearRect(0, 0, w, h);

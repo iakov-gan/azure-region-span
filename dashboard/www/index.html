@@ -1071,6 +1071,8 @@
                 sidebar.style.display = '';
                 const url = new URL(window.location);
                 url.searchParams.delete('view');
+                url.searchParams.delete('mgeo');
+                url.searchParams.delete('msort');
                 history.replaceState(null, '', url);
             }
 
@@ -1091,7 +1093,7 @@
 
             // Auto-switch based on URL param
             const params = new URLSearchParams(window.location.search);
-            if (params.get('view') === 'matrix') {
+            if (params.get('view') === 'matrix' || params.has('mgeo') || params.has('msort')) {
                 // Defer until data is loaded
                 const waitForMatrix = setInterval(function() {
                     if (window.matrixView) {
