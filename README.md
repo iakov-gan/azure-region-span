@@ -11,7 +11,7 @@ A tool for measuring and visualizing network latency between Azure regions.
 This project allows you to:
 - **Deploy a test infrastructure** across multiple Azure regions to measure inter-region network latency
 - **Automatically collect** latency measurements between all configured regions
-- **Visualize results** through an interactive dashboard with a world map
+- **Visualize results** through an interactive dashboard with a world map and latency matrix
 
 ## 🏗️ Architecture
 
@@ -157,14 +157,18 @@ The script uses `qperf` to measure TCP latency to each server and sends the resu
 
 ## 📊 Dashboard
 
-The dashboard provides an interactive visualization of latency results.
+The dashboard provides an interactive visualization of latency results with two views:
 
 ### Features
 
-- 🗺️ **Interactive Map**: Visualization of Azure regions on a world map
-- 📊 **Real-time Data**: Retrieval of measurements from Azure Table Storage
-- 🎨 **Color Coding**: Latencies colored by performance (green → red)
-- 📋 **Sorted List**: Latencies displayed sorted by performance
+- 🗺️ **Interactive Map**: Visualization of Azure regions on a world map with colored polylines
+- 📊 **Latency Matrix**: Heatmap table showing all source×destination latencies at a glance
+- 📈 **Historical Charts**: Hover any cell in the matrix to see latency trends over time
+- 🎨 **Color Coding**: Latencies colored by performance (green < 40ms → red ≥ 300ms)
+- 🔍 **Filtering**: Geography, source/destination multi-select with search, sort by name or latency
+- 📋 **Region Info**: Hover region headers to see city, country, and AZ support
+- 🔗 **Shareable URLs**: Filter state syncs to URL parameters (e.g. `?view=matrix&mgeo=europe`)
+- 📥 **CSV Export**: Download the current filtered view as CSV
 - 📈 **Statistics**: Global metrics (number of regions, average latency, etc.)
 
 ### Dashboard Deployment
@@ -195,7 +199,7 @@ azure-region-bench/
 │   └── dashboard/          # Dashboard resources
 └── dashboard/
     ├── api/                # Azure Functions API
-    └── www/                # Static frontend
+    └── www/                # Static frontend (map + matrix views)
 ```
 
 ## 🔧 Terraform Variables
