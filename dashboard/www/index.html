@@ -823,6 +823,41 @@
                 font-size: 0.8rem;
             }
         }
+
+        .view-toggle {
+            display: flex;
+            gap: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 3px;
+            margin-left: 20px;
+        }
+
+        .view-btn {
+            padding: 8px 20px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border-radius: 6px;
+        }
+
+        .view-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .view-btn.active {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -851,6 +886,10 @@
             </svg>
             Azure Region Span
         </h1>
+        <div class="view-toggle">
+            <button class="view-btn active" id="mapViewBtn" title="Map View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Map</button>
+            <button class="view-btn" id="matrixViewBtn" title="Matrix View"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Matrix</button>
+        </div>
         <div class="header-right">
             <a href="https://github.com/vmisson/azure-region-span" target="_blank" rel="noopener noreferrer" class="github-link">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -966,10 +1005,12 @@
         </aside>
 
         <div id="map"></div>
+        <div id="matrix" style="display:none"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="regions.js"></script>
+    <script src="matrix.js"></script>
     <script src="app.js"></script>
     <script>
         // Mobile menu functionality
@@ -1011,6 +1052,59 @@
                         setTimeout(closeSidebar, 300);
                     }
                 });
+            }
+        })();
+
+        // View toggle (Map ↔ Matrix) with URL parameter support
+        (function() {
+            const mapViewBtn = document.getElementById('mapViewBtn');
+            const matrixViewBtn = document.getElementById('matrixViewBtn');
+            const mapEl = document.getElementById('map');
+            const matrixEl = document.getElementById('matrix');
+            const sidebar = document.getElementById('sidebar');
+
+            function switchToMap() {
+                mapEl.style.display = '';
+                matrixEl.style.display = 'none';
+                mapViewBtn.classList.add('active');
+                matrixViewBtn.classList.remove('active');
+                sidebar.style.display = '';
+                const url = new URL(window.location);
+                url.searchParams.delete('view');
+                url.searchParams.delete('mgeo');
+                url.searchParams.delete('msort');
+                url.searchParams.delete('msrc');
+                url.searchParams.delete('mdst');
+                history.replaceState(null, '', url);
+            }
+
+            function switchToMatrix() {
+                mapEl.style.display = 'none';
+                matrixEl.style.display = '';
+                matrixViewBtn.classList.add('active');
+                mapViewBtn.classList.remove('active');
+                sidebar.style.display = 'none';
+                if (window.matrixView) window.matrixView.show();
+                const url = new URL(window.location);
+                url.searchParams.set('view', 'matrix');
+                history.replaceState(null, '', url);
+            }
+
+            if (mapViewBtn) mapViewBtn.addEventListener('click', switchToMap);
+            if (matrixViewBtn) matrixViewBtn.addEventListener('click', switchToMatrix);
+
+            // Auto-switch based on URL param
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('view') === 'matrix' || params.has('mgeo') || params.has('msort') || params.has('msrc') || params.has('mdst')) {
+                // Defer until data is loaded
+                const waitForMatrix = setInterval(function() {
+                    if (window.matrixView) {
+                        clearInterval(waitForMatrix);
+                        switchToMatrix();
+                    }
+                }, 200);
+                // Safety timeout
+                setTimeout(function() { clearInterval(waitForMatrix); }, 15000);
             }
         })();
     </script>

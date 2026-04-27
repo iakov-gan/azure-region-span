@@ -38,63 +38,72 @@ const AZURE_REGIONS = {
     // United States
     "eastus": {
         displayName: "East US",
-        coordinates: [37.4316, -78.6569], // Virginia
+        coordinates: [37.4316, -78.6569],
+        city: "Virginia",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
     },
     "eastus2": {
         displayName: "East US 2",
-        coordinates: [37.4316, -78.6569], // Virginia
+        coordinates: [37.4316, -78.6569],
+        city: "Virginia",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
     },
     "centralus": {
         displayName: "Central US",
-        coordinates: [41.8780, -93.0977], // Iowa
+        coordinates: [41.8780, -93.0977],
+        city: "Iowa",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
     },
     "northcentralus": {
         displayName: "North Central US",
-        coordinates: [41.8819, -87.6278], // Illinois (Chicago)
+        coordinates: [41.8819, -87.6278],
+        city: "Illinois",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: false
     },
     "southcentralus": {
         displayName: "South Central US",
-        coordinates: [29.7604, -95.3698], // Texas (Houston)
+        coordinates: [29.7604, -95.3698],
+        city: "Texas",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
     },
     "westcentralus": {
         displayName: "West Central US",
-        coordinates: [41.1400, -104.8202], // Wyoming (Cheyenne)
+        coordinates: [41.1400, -104.8202],
+        city: "Wyoming",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: false
     },
     "westus": {
         displayName: "West US",
-        coordinates: [37.7749, -122.4194], // California (San Francisco)
+        coordinates: [37.7749, -122.4194],
+        city: "California",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: false
     },
     "westus2": {
         displayName: "West US 2",
-        coordinates: [47.6062, -122.3321], // Washington (Seattle)
+        coordinates: [47.6062, -122.3321],
+        city: "Washington",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
     },
     "westus3": {
         displayName: "West US 3",
-        coordinates: [33.4484, -112.0740], // Phoenix, Arizona
+        coordinates: [33.4484, -112.0740],
+        city: "Phoenix",
         country: "United States",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
@@ -102,14 +111,16 @@ const AZURE_REGIONS = {
     // Canada
     "canadacentral": {
         displayName: "Canada Central",
-        coordinates: [43.6532, -79.3832], // Toronto
+        coordinates: [43.6532, -79.3832],
+        city: "Toronto",
         country: "Canada",
         geoGroup: "northamerica",
         hasAvailabilityZones: true
     },
     "canadaeast": {
         displayName: "Canada East",
-        coordinates: [46.8139, -71.2080], // Quebec City
+        coordinates: [46.8139, -71.2080],
+        city: "Quebec",
         country: "Canada",
         geoGroup: "northamerica",
         hasAvailabilityZones: false
@@ -117,21 +128,24 @@ const AZURE_REGIONS = {
     // Latin America
     "brazilsouth": {
         displayName: "Brazil South",
-        coordinates: [-23.5505, -46.6333], // São Paulo
+        coordinates: [-23.5505, -46.6333],
+        city: "São Paulo",
         country: "Brazil",
         geoGroup: "latinamerica",
         hasAvailabilityZones: true
     },
     "chilecentral": {
         displayName: "Chile Central",
-        coordinates: [-33.4489, -70.6693], // Santiago
+        coordinates: [-33.4489, -70.6693],
+        city: "Santiago",
         country: "Chile",
         geoGroup: "latinamerica",
         hasAvailabilityZones: true
     },
     "mexicocentral": {
         displayName: "Mexico Central",
-        coordinates: [20.5881, -100.3899], // Querétaro
+        coordinates: [20.5881, -100.3899],
+        city: "Querétaro",
         country: "Mexico",
         geoGroup: "latinamerica",
         hasAvailabilityZones: true
@@ -139,98 +153,112 @@ const AZURE_REGIONS = {
     // Europe
     "northeurope": {
         displayName: "North Europe",
-        coordinates: [53.3498, -6.2603], // Dublin, Ireland
+        coordinates: [53.3498, -6.2603],
+        city: "Dublin",
         country: "Ireland",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "westeurope": {
         displayName: "West Europe",
-        coordinates: [52.3676, 4.9041], // Amsterdam, Netherlands
+        coordinates: [52.3676, 4.9041],
+        city: "Amsterdam",
         country: "Netherlands",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "uksouth": {
         displayName: "UK South",
-        coordinates: [51.5074, -0.1278], // London
+        coordinates: [51.5074, -0.1278],
+        city: "London",
         country: "United Kingdom",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "ukwest": {
         displayName: "UK West",
-        coordinates: [51.4816, -3.1791], // Cardiff
+        coordinates: [51.4816, -3.1791],
+        city: "Cardiff",
         country: "United Kingdom",
         geoGroup: "europe",
         hasAvailabilityZones: false
     },
     "francecentral": {
         displayName: "France Central",
-        coordinates: [48.8566, 2.3522], // Paris
+        coordinates: [48.8566, 2.3522],
+        city: "Paris",
         country: "France",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "germanywestcentral": {
         displayName: "Germany West Central",
-        coordinates: [50.1109, 8.6821], // Frankfurt
+        coordinates: [50.1109, 8.6821],
+        city: "Frankfurt",
         country: "Germany",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "switzerlandnorth": {
         displayName: "Switzerland North",
-        coordinates: [47.3769, 8.5417], // Zurich
+        coordinates: [47.3769, 8.5417],
+        city: "Zurich",
         country: "Switzerland",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "swedencentral": {
         displayName: "Sweden Central",
-        coordinates: [60.6749, 17.1413], // Gävle
+        coordinates: [60.6749, 17.1413],
+        city: "Gävle",
         country: "Sweden",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "norwayeast": {
         displayName: "Norway East",
-        coordinates: [59.9139, 10.7522], // Oslo
+        coordinates: [59.9139, 10.7522],
+        city: "Oslo",
         country: "Norway",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "italynorth": {
         displayName: "Italy North",
-        coordinates: [45.4642, 9.1900], // Milan
+        coordinates: [45.4642, 9.1900],
+        city: "Milan",
         country: "Italy",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "polandcentral": {
         displayName: "Poland Central",
-        coordinates: [52.2297, 21.0122], // Warsaw
+        coordinates: [52.2297, 21.0122],
+        city: "Warsaw",
         country: "Poland",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "spaincentral": {
         displayName: "Spain Central",
-        coordinates: [40.4168, -3.7038], // Madrid
+        coordinates: [40.4168, -3.7038],
+        city: "Madrid",
         country: "Spain",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "belgiumcentral": {
         displayName: "Belgium Central",
-        coordinates: [50.8503, 4.3517], // Brussels
+        coordinates: [50.8503, 4.3517],
+        city: "Brussels",
         country: "Belgium",
         geoGroup: "europe",
         hasAvailabilityZones: true
     },
     "austriaeast": {
         displayName: "Austria East",
-        coordinates: [48.2082, 16.3738], // Vienna
+        coordinates: [48.2082, 16.3738],
+        city: "Vienna",
         country: "Austria",
         geoGroup: "europe",
         hasAvailabilityZones: true
@@ -238,21 +266,24 @@ const AZURE_REGIONS = {
     // Australia & New Zealand
     "australiaeast": {
         displayName: "Australia East",
-        coordinates: [-33.8688, 151.2093], // Sydney, New South Wales
+        coordinates: [-33.8688, 151.2093],
+        city: "New South Wales",
         country: "Australia",
         geoGroup: "oceania",
         hasAvailabilityZones: true
     },
     "australiasoutheast": {
         displayName: "Australia Southeast",
-        coordinates: [-37.8136, 144.9631], // Melbourne, Victoria
+        coordinates: [-37.8136, 144.9631],
+        city: "Victoria",
         country: "Australia",
         geoGroup: "oceania",
         hasAvailabilityZones: false
     },
     "newzealandnorth": {
         displayName: "New Zealand North",
-        coordinates: [-36.8509, 174.7645], // Auckland
+        coordinates: [-36.8509, 174.7645],
+        city: "Auckland",
         country: "New Zealand",
         geoGroup: "oceania",
         hasAvailabilityZones: true
@@ -260,56 +291,64 @@ const AZURE_REGIONS = {
     // Asia Pacific
     "southeastasia": {
         displayName: "Southeast Asia",
-        coordinates: [1.3521, 103.8198], // Singapore
+        coordinates: [1.3521, 103.8198],
+        city: "Singapore",
         country: "Singapore",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
     },
     "eastasia": {
         displayName: "East Asia",
-        coordinates: [22.3193, 114.1694], // Hong Kong
-        country: "Hong Kong",
+        coordinates: [22.3193, 114.1694],
+        city: "Hong Kong",
+        country: "Hong Kong SAR",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
     },
     "japaneast": {
         displayName: "Japan East",
-        coordinates: [35.6762, 139.6503], // Tokyo
+        coordinates: [35.6762, 139.6503],
+        city: "Tokyo, Saitama",
         country: "Japan",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
     },
     "japanwest": {
         displayName: "Japan West",
-        coordinates: [34.6937, 135.5023], // Osaka
+        coordinates: [34.6937, 135.5023],
+        city: "Osaka",
         country: "Japan",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
     },
     "koreacentral": {
         displayName: "Korea Central",
-        coordinates: [37.5665, 126.9780], // Seoul
+        coordinates: [37.5665, 126.9780],
+        city: "Seoul",
         country: "South Korea",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
     },
     "koreasouth": {
         displayName: "Korea South",
-        coordinates: [35.1796, 129.0756], // Busan
+        coordinates: [35.1796, 129.0756],
+        city: "Busan",
         country: "South Korea",
         geoGroup: "asiapacific",
         hasAvailabilityZones: false
     },
     "indonesiacentral": {
         displayName: "Indonesia Central",
-        coordinates: [-6.2088, 106.8456], // Jakarta
+        coordinates: [-6.2088, 106.8456],
+        city: "Jakarta",
         country: "Indonesia",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
     },
     "malaysiawest": {
         displayName: "Malaysia West",
-        coordinates: [3.1390, 101.6869], // Kuala Lumpur
+        coordinates: [3.1390, 101.6869],
+        city: "Kuala Lumpur",
         country: "Malaysia",
         geoGroup: "asiapacific",
         hasAvailabilityZones: true
@@ -317,21 +356,24 @@ const AZURE_REGIONS = {
     // India
     "centralindia": {
         displayName: "Central India",
-        coordinates: [18.5204, 73.8567], // Pune
+        coordinates: [18.5204, 73.8567],
+        city: "Pune",
         country: "India",
         geoGroup: "india",
         hasAvailabilityZones: true
     },
     "southindia": {
         displayName: "South India",
-        coordinates: [13.0827, 80.2707], // Chennai
+        coordinates: [13.0827, 80.2707],
+        city: "Chennai",
         country: "India",
         geoGroup: "india",
         hasAvailabilityZones: false
     },
     "westindia": {
         displayName: "West India",
-        coordinates: [19.0760, 72.8777], // Mumbai
+        coordinates: [19.0760, 72.8777],
+        city: "Mumbai",
         country: "India",
         geoGroup: "india",
         hasAvailabilityZones: false
@@ -339,21 +381,24 @@ const AZURE_REGIONS = {
     // Middle East
     "uaenorth": {
         displayName: "UAE North",
-        coordinates: [25.2048, 55.2708], // Dubai
+        coordinates: [25.2048, 55.2708],
+        city: "Dubai",
         country: "United Arab Emirates",
         geoGroup: "middleeast",
         hasAvailabilityZones: true
     },
     "qatarcentral": {
         displayName: "Qatar Central",
-        coordinates: [25.2854, 51.5310], // Doha
+        coordinates: [25.2854, 51.5310],
+        city: "Doha",
         country: "Qatar",
         geoGroup: "middleeast",
         hasAvailabilityZones: true
     },
     "israelcentral": {
         displayName: "Israel Central",
-        coordinates: [32.0853, 34.7818], // Tel Aviv
+        coordinates: [32.0853, 34.7818],
+        city: "Tel Aviv",
         country: "Israel",
         geoGroup: "middleeast",
         hasAvailabilityZones: true
@@ -361,7 +406,8 @@ const AZURE_REGIONS = {
     // Africa
     "southafricanorth": {
         displayName: "South Africa North",
-        coordinates: [-26.2041, 28.0473], // Johannesburg
+        coordinates: [-26.2041, 28.0473],
+        city: "Johannesburg",
         country: "South Africa",
         geoGroup: "africa",
         hasAvailabilityZones: true
