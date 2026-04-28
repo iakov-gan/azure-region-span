@@ -139,20 +139,21 @@ class MatrixView {
     }
 
     _getColor(latency) {
+        // Thresholds match getLatencyColor() in app.js (one-way: RTT/2)
         if (latency === null) return '#2a2a3e';
-        if (latency < 40) return '#1a5c2a';
-        if (latency < 100) return '#5c5c1a';
-        if (latency < 200) return '#6c3a0a';
-        if (latency < 300) return '#6c1a1a';
-        return '#4c0a0a';
+        if (latency < 25) return '#1a5c2a';   // excellent
+        if (latency < 50) return '#5c5c1a';   // good
+        if (latency < 100) return '#6c3a0a';  // fair
+        if (latency < 150) return '#6c1a1a';  // high
+        return '#4c0a0a';                      // very high
     }
 
     _getTextColor(latency) {
         if (latency === null) return '#555';
-        if (latency < 40) return '#a6e3a1';
-        if (latency < 100) return '#f9e2af';
-        if (latency < 200) return '#fab387';
-        if (latency < 300) return '#f38ba8';
+        if (latency < 25) return '#a6e3a1';
+        if (latency < 50) return '#f9e2af';
+        if (latency < 100) return '#fab387';
+        if (latency < 150) return '#f38ba8';
         return '#e06080';
     }
 
@@ -173,10 +174,22 @@ class MatrixView {
     }
 
     _avgLatencyForRegion(regionId, peerList) {
+        // Outbound: avg of lookup(regionId → peer)
         let sum = 0, count = 0;
         peerList.forEach(peerId => {
             if (regionId === peerId) return;
             const lat = this.latencyLookup.get(`${regionId}|${peerId}`);
+            if (lat != null) { sum += lat; count++; }
+        });
+        return count > 0 ? sum / count : Infinity;
+    }
+
+    _avgLatencyToRegion(regionId, peerList) {
+        // Inbound: avg of lookup(peer → regionId)
+        let sum = 0, count = 0;
+        peerList.forEach(peerId => {
+            if (regionId === peerId) return;
+            const lat = this.latencyLookup.get(`${peerId}|${regionId}`);
             if (lat != null) { sum += lat; count++; }
         });
         return count > 0 ? sum / count : Infinity;
@@ -209,8 +222,12 @@ class MatrixView {
 
         // Sort — use filtered peers for avg calculation
         if (this.sortMode === 'latency') {
-            sources.sort((a, b) => this._avgLatencyForRegion(a, dests) - this._avgLatencyForRegion(b, dests));
-            dests.sort((a, b) => this._avgLatencyForRegion(a, sources) - this._avgLatencyForRegion(b, sources));
+            // Sources: avg of their outbound latency to filtered dests
+            // Dests: avg of inbound latency from filtered sources (matches the column data)
+            const srcAvg = new Map(sources.map(s => [s, this._avgLatencyForRegion(s, dests)]));
+            const dstAvg = new Map(dests.map(d => [d, this._avgLatencyToRegion(d, sources)]));
+            sources.sort((a, b) => srcAvg.get(a) - srcAvg.get(b));
+            dests.sort((a, b) => dstAvg.get(a) - dstAvg.get(b));
         } else {
             const nameCmp = (a, b) => this._regionName(a).localeCompare(this._regionName(b));
             sources.sort(nameCmp);
@@ -290,12 +307,17 @@ class MatrixView {
         // Legend
         const legend = document.createElement('div');
         legend.style.cssText = 'display:flex;gap:10px;align-items:center;font-size:0.75rem;';
+        const legendTitle = document.createElement('span');
+        legendTitle.style.cssText = 'color:#94a3b8;font-weight:600;';
+        legendTitle.textContent = 'one-way (ms):';
+        legendTitle.title = 'Values are one-way latency from source → destination, not round-trip time (RTT)';
+        legend.appendChild(legendTitle);
         const bands = [
-            { color: '#1a5c2a', text: '#a6e3a1', label: '< 40' },
-            { color: '#5c5c1a', text: '#f9e2af', label: '40–99' },
-            { color: '#6c3a0a', text: '#fab387', label: '100–199' },
-            { color: '#6c1a1a', text: '#f38ba8', label: '200–299' },
-            { color: '#4c0a0a', text: '#e06080', label: '≥ 300' },
+            { color: '#1a5c2a', text: '#a6e3a1', label: '< 25' },
+            { color: '#5c5c1a', text: '#f9e2af', label: '25–49' },
+            { color: '#6c3a0a', text: '#fab387', label: '50–99' },
+            { color: '#6c1a1a', text: '#f38ba8', label: '100–149' },
+            { color: '#4c0a0a', text: '#e06080', label: '≥ 150' },
         ];
         bands.forEach(b => {
             const item = document.createElement('span');
@@ -433,7 +455,7 @@ class MatrixView {
         const dstName = this._regionName(dst);
 
         let html = `<div style="margin-bottom:6px;font-weight:600;font-size:0.85rem;">${srcName} → ${dstName}</div>`;
-        html += `<div style="font-size:0.8rem;color:#00d9ff;margin-bottom:6px;">Current: ${latency.toFixed(2)} ms</div>`;
+        html += `<div style="font-size:0.8rem;color:#00d9ff;margin-bottom:6px;">Current: ${latency.toFixed(2)} ms <span style="color:#94a3b8;font-size:0.7rem;">(one-way)</span></div>`;
 
         if (history.length > 1) {
             html += `<canvas id="matrix-sparkline-canvas" width="280" height="100"></canvas>`;

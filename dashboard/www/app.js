@@ -396,17 +396,37 @@ class LatencyMapApp {
             
             this.updateProgress(85, 'Processing data...');
             // Aggregate the data: keep latest measurement and count per connection
+            this.rawData = rawData;
             this.latencyData = this.aggregateLatencyData(rawData);
             
             this.updateProgress(95, 'Updating statistics...');
             this.updateStats();
+            this.updateLastMeasurement();
+            this.initMatrixView();
         } catch (error) {
             console.error('Error loading latency data:', error);
             this.updateProgress(80, 'Using demo data...');
             // Use demo data if API is not available
+            this.rawData = [];
             this.latencyData = this.generateDemoData();
             this.updateStats();
+            this.updateLastMeasurement();
+            this.initMatrixView();
         }
+    }
+
+    /**
+     * Initializes (or re-initializes) the MatrixView with current data.
+     * Exposes it on window so the view-toggle script can show/hide it.
+     */
+    initMatrixView() {
+        if (typeof MatrixView === 'undefined') return;
+        const matrixEl = document.getElementById('matrix');
+        if (!matrixEl) return;
+        if (!window.matrixView) {
+            window.matrixView = new MatrixView(matrixEl);
+        }
+        window.matrixView.init(this.rawData || [], this.latencyData);
     }
 
     /**
@@ -577,6 +597,46 @@ class LatencyMapApp {
         document.getElementById('statRegions').textContent = regionsCount;
         document.getElementById('statConnections').textContent = connectionsCount;
         document.getElementById('statAvgLatency').textContent = `${avgLatency.toFixed(2)} ms`;
+    }
+
+    /**
+     * Updates the header indicator with the date of the most recent measurement.
+     * Uses the latest timestamp found in the raw data (or aggregated connections).
+     */
+    updateLastMeasurement() {
+        const valueEl = document.getElementById('lastMeasurementValue');
+        if (!valueEl) return;
+
+        let latest = null;
+        const consider = (ts) => {
+            if (!ts) return;
+            const d = new Date(ts);
+            if (isNaN(d.getTime())) return;
+            if (!latest || d > latest) latest = d;
+        };
+
+        if (Array.isArray(this.rawData)) {
+            this.rawData.forEach(e => consider(e.timestamp));
+        }
+        if (this.latencyData && Array.isArray(this.latencyData.connections)) {
+            this.latencyData.connections.forEach(c => consider(c.timestamp));
+        }
+
+        if (!latest) {
+            valueEl.textContent = 'N/A';
+            return;
+        }
+
+        const formatted = latest.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        valueEl.textContent = formatted;
+        const parent = valueEl.closest('.last-measurement');
+        if (parent) parent.title = `Last measurement: ${latest.toLocaleString()}`;
     }
 
     /**
@@ -772,11 +832,11 @@ class LatencyMapApp {
      */
     getLatencyColor(latency) {
         if (latency === null || latency === undefined) return '#666666';
-        if (latency < 10) return '#00ff88';   // Excellent
-        if (latency < 30) return '#88ff00';   // Good
-        if (latency < 80) return '#ffdd00';   // Fair
-        if (latency < 150) return '#ff8800';  // Poor
-        return '#ff4444';                      // Bad
+        if (latency < 25) return '#00ff88';   // Excellent
+        if (latency < 50) return '#88ff00';   // Good
+        if (latency < 100) return '#ffdd00';  // Fair
+        if (latency < 150) return '#ff8800';  // High
+        return '#ff4444';                      // Very High
     }
 
     /**
@@ -786,9 +846,9 @@ class LatencyMapApp {
      */
     getRttColor(rtt) {
         if (rtt === null || rtt === undefined) return '#666666';
-        if (rtt < 20) return '#00ff88';   // Excellent
-        if (rtt < 60) return '#88ff00';   // Good
-        if (rtt < 160) return '#ffdd00';  // Fair
+        if (rtt < 50) return '#00ff88';   // Excellent
+        if (rtt < 100) return '#88ff00';  // Good
+        if (rtt < 200) return '#ffdd00';  // Fair
         if (rtt < 300) return '#ff8800';  // High
         return '#ff4444';                  // Very High
     }
@@ -800,9 +860,9 @@ class LatencyMapApp {
      */
     getRttClass(rtt) {
         if (rtt === null || rtt === undefined) return '';
-        if (rtt < 20) return 'excellent';
-        if (rtt < 60) return 'good';
-        if (rtt < 160) return 'fair';
+        if (rtt < 50) return 'excellent';
+        if (rtt < 100) return 'good';
+        if (rtt < 200) return 'fair';
         if (rtt < 300) return 'poor';
         return 'bad';
     }
