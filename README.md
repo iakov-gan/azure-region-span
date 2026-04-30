@@ -218,7 +218,7 @@ azure-region-bench/
 
 ## ❓ FAQ
 
-### What is the difference with the official Azure network latency data?
+### What is the difference between this project and the official Azure network latency data?
 
 Microsoft publishes [round-trip latency statistics](https://learn.microsoft.com/en-us/azure/networking/azure-network-latency) between Azure regions. Here's how this project differs:
 
